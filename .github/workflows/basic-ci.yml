@@ -8,7 +8,7 @@ on:
 
 jobs:
   cypress-run:
-    runs-on: ubuntu-latest
+    runs-on: studion-qa
 
     steps:
       - name: Checkout do código

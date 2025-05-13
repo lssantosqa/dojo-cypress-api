@@ -35,8 +35,7 @@ describe('Testes de login do Vitrinne', () => {
         _password: 'senha'
       }
     }).then((response) => {
-      //validação de erro
-      
+      // cy.log(response.body) 
     })  
   })
     

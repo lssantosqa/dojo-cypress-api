@@ -25,7 +25,7 @@ describe('CRUD de soluções', () => {
         })
     })
 
-    it.only('Deve criar uma solução com sucesso', () => {
+    it('Deve criar uma solução com sucesso', () => {
         cy.criarSolucao().then((response) => {
             expect(response.status).eq(200)
             //validar schema
