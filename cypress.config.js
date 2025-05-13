@@ -1,13 +1,14 @@
-import { allureCypress } from "allure-cypress/reporter";
+const { allureCypress } = require('allure-cypress/reporter')
+const { defineConfig } = require('cypress')
 
-export default {
+module.exports = defineConfig({
   e2e: {
     baseUrl: "https://api-vitrineead-lite.qa.dotgroup.com.br",
     setupNodeEvents(on, config) {
       allureCypress(on, config, {
-        resultsDir: "allure-results",
-      });
-      return config;
-    },
-  },
-};
+        resultsDir: 'allure-results',
+      })      
+      return config
+    },     
+  }
+})
