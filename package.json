@@ -1,0 +1,30 @@
+{
+  "name": "dojo-cypress-api",
+  "version": "1.0.0",
+  "description": "Repositório com o código do dojô de testes de API com Cypress",
+  "main": "index.js",
+  "scripts": {
+    "cy:run": "npx cypress run",
+    "cy:open": "npx cypress open",
+    "web-report": "allure generate allure-results -o ./out/allure-report --clean --single-file"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lssantosqa/dojo-cypress-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lssantosqa/dojo-cypress-api/issues"
+  },
+  "homepage": "https://github.com/lssantosqa/dojo-cypress-api#readme",
+  "dependencies": {
+    "cypress": "^14.3.3",
+    "cypress-plugin-api": "^2.11.2",
+    "joi": "^17.13.3"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.7.0",
+    "allure-cypress": "^3.2.2"
+  }
+}

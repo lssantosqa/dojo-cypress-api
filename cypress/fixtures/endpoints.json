@@ -1,0 +1,5 @@
+{
+  "sessions" : "/sessions",
+  "auth" : "/auth",
+  "solutions": "/solutions"
+}
