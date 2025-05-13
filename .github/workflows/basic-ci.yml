@@ -1,46 +1,40 @@
-name: Cypress tests
+name: Cypress Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
 
 jobs:
-  install:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  cypress-run:
+    runs-on: ubuntu-latest
 
-      - name: Cypress install
-        uses: cypress-io/github-action@v6
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v3
         with:
-          runTests: false
-          build: npm run build
-      
-      - name: Save build folder
+          node-version: 18
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Rodar testes do Cypress
+        run: npx cypress run
+
+      - name: Armazenar screenshots (se falhar)
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: build
-          if-no-files-found: error
-          path: build
-          
-  cypress-run:
-    runs-on: ubuntu-24.04
-    needs: install
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+          name: cypress-screenshots
+          path: cypress/screenshots
 
-      - name: Download the build folder
-        uses: actions/download-artifact@v4
+      - name: Armazenar vídeos
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: build
-          path: build
-
-      - name: Cypress run
-        uses: cypress-io/github-action@v6
-        with:
-          start: npm start
-          browser: chrome
+          name: cypress-videos
+          path: cypress/videos
