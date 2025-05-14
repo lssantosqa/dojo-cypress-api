@@ -1,76 +1,70 @@
 /// <reference types="cypress" />
 import { faker } from '@faker-js/faker'
 import { getSessionSchema } from '../fixtures/schemas/sessionSchema.js'
+import * as Endpoints from '../fixtures/endpoints.json'
+
 describe('CRUD de turmas', () => {
+    const initDate = faker.date.past()
+    const finishDate = faker.date.future() 
     beforeEach(() => {
-        cy.login('api-fran', 'Dot123456@')
+        cy.login('api-fran', 'Dot123456@').then((response) => {
+            Cypress.env('token', response.body.token)
+        })
+        cy.criarSolucao().then((response) => {
+            Cypress.env('solutionId', response.body.id)
+        })
     })
     
     it('Deve listar as turmas cadastradas', () => {
-        cy.request({
-            method: 'GET',
-            url: '/sessions',
-            headers: {
-                Authorization: `Bearer ${Cypress.env('token')}`
-            }
-        }).then((response) => {
+        cy.getRequest(Endpoints.sessions).then((response) => {
             expect(response.status).to.eq(200)    
-            const body = response.body.items[0];
-            expect(body).to.have.property('id').that.is.a('number')
-            expect(body).to.have.property('name').that.is.a('string')
-            expect(body).to.have.property('initDate')
-            if (body.initDate !== null) expect(new Date(body.initDate).toString()).to.not.eq('Invalid Date')
-            expect(body).to.have.property('finishDate')
-            if (body.finishDate !== null) expect(new Date(body.finishDate).toString()).to.not.eq('Invalid Date')
-            expect(body).to.have.property('vacancies').that.is.a('number')
-            expect(body).to.have.property('showOnPortal').that.is.a('boolean')
-            expect(body).to.have.property('allowEnrollInitDate')
-            if (body.allowEnrollInitDate !== null) expect(new Date(body.allowEnrollInitDate).toString()).to.not.eq('Invalid Date')
-            expect(body).to.have.property('allowEnrollFinishDate')
-            if (body.allowEnrollFinishDate !== null) expect(new Date(body.allowEnrollFinishDate).toString()).to.not.eq('Invalid Date')
-            expect(body).to.have.property('solutionType').that.is.a('string')
-            // cy.checaSchema(response.body.items[0], getSessionSchema)
-            })
+            cy.checaSchema(response.body.items[0], getSessionSchema)
         })
+    })
 
-    it('Deve criar uma turma com sucesso', () => {
-        const initDate = faker.date.past()
-        const finishDate = faker.date.future()
-        cy.criarSolucao().then((response) => {           
+    it('Deve criar uma turma com sucesso', () => {     
+        const requestBody = {
+            name: `Turma ${faker.lorem.slug()}`,
+            init_date: initDate.toISOString().slice(0, 16).replace('T', ' '),
+            finish_date: finishDate.toISOString().slice(0, 16).replace('T', ' '), 
+            vacancies: faker.number.int({min:1, max:1000}),
+            show_on_portal: "true",
+            allow_enroll_init_date: "2025-07-07 00:00",
+            allow_enroll_finish_date: "2025-08-01 00:00",
+            id_solution: Cypress.env('solutionId')
+        }            
+        
+        cy.postRequest(Endpoints.sessions, requestBody).then((response) => {
+            expect(response.status).to.eq(200)
+        })
+    })
+
+    it('Deve criar e editar uma turma com sucesso', () => {
+        cy.criarTurma(Cypress.env('solutionId')).then((sessionResponse) => {
+            const sessionId = sessionResponse.body.id
             const requestBody = {
-                name: `Turma ${faker.lorem.slug()}`,
+                name: `Turma ${faker.lorem.slug()} editada`,
                 init_date: initDate.toISOString().slice(0, 16).replace('T', ' '),
                 finish_date: finishDate.toISOString().slice(0, 16).replace('T', ' '), 
                 vacancies: faker.number.int({min:1, max:1000}),
                 show_on_portal: "true",
                 allow_enroll_init_date: "2025-07-07 00:00",
                 allow_enroll_finish_date: "2025-08-01 00:00",
-                id_solution: response.body.id
-            }            
-            
-            cy.postRequest('/sessions', requestBody).then((response) => {
-                expect(response.status).to.eq(200)
-                cy.log(response.body)
-                // expect(response.status).to.eq(200)
-                // expect(response.body).to.have.property('id').that.is.a('number')
-                // expect(response.body).to.have.property('name').that.is.a('string')
-                // expect(response.body).to.have.property('initDate')
-                // if (response.body.initDate !== null) expect(new Date(response.body.initDate).toString()).to.not.eq('Invalid Date')
-                // expect(response.body).to.have.property('finishDate')
-                // if (response.body.finishDate !== null) expect(new Date(response.body.finishDate).toString()).to.not.eq('Invalid Date')
-                // expect(response.body).to.have.property('vacancies').that.is.a('number')
-                // expect(response.body).to.have.property('showOnPortal').that.is.a('boolean')
+                id_solution: Cypress.env('solutionId')
+            }
+            cy.putRequest(`${Endpoints.sessions}/${sessionId}`, requestBody).then((response) => {
+                expect(response.status).eq(200)
             })
         })
-
-    })
-
-    it('Deve criar e editar uma turma com sucesso', () => {
-        //criar curso e turma
-    })
+    }) 
+    
 
     it('Deve criar e deletar uma turma com sucesso', () => {
-        //criar curso e turma
-        //deletar turma
-    })
+        cy.criarTurma(Cypress.env('solutionId')).then((sessionResponse) => {
+            const sessionId = sessionResponse.body.id
+            cy.deleteRequest(`${Endpoints.sessions}/${sessionId}`).then((response) => {
+                expect(response.status).eq(204)
+            })
+        })
+    }) 
 })

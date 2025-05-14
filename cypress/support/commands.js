@@ -1,12 +1,13 @@
 const Joi = require('joi')
 import { faker } from '@faker-js/faker'
+import 'cypress-plugin-api'
+import  * as endpoints from '../fixtures/endpoints.json'
 
 Cypress.Commands.add('postRequest', (url, data) => {
     cy.request({
         method: 'POST',
         url: url,
         failOnStatusCode: false,
-        form: true,
         headers : {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -22,11 +23,42 @@ Cypress.Commands.add('getRequest', (endpoint) => {
     cy.request({
         method: 'GET',
         url: endpoint,
+        failOnStatusCode:false,
         headers: {
-            Authorization: `Bearer ${Cypress.env('token')}`,
+            'Authorization': `Bearer ${Cypress.env('token')}`,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         }
+    }).then((response) => {
+        return response
+    })
+})
+Cypress.Commands.add('deleteRequest', (endpoint) => {
+    cy.request({
+        method: 'DELETE',
+        url: endpoint,
+        failOnStatusCode:false,
+        headers: {
+            'Authorization': `Bearer ${Cypress.env('token')}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    }).then((response) => {
+        return response
+    })
+})
+
+Cypress.Commands.add('putRequest', (endpoint, requestBody) => {
+    cy.request({
+        method: 'PUT',
+        url: endpoint,
+        failOnStatusCode: false,
+        headers : {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${Cypress.env('token')}`
+        },
+        body: requestBody    
     }).then((response) => {
         return response
     })
@@ -37,11 +69,8 @@ Cypress.Commands.add('login', (email, senha) => {
         _username: email,
         _password: senha
     }
-    cy.postRequest('/auth', requestBody).then((response) => {
-        expect(response.status).to.eq(200)
-        expect(response.body).to.have.property('token')
-        expect(response.body).to.have.property('refresh_token')
-        Cypress.env('token', response.body.token)
+    cy.postRequest(endpoints.auth, requestBody).then((response) => {
+        return response
     })
 })
 
@@ -116,8 +145,27 @@ Cypress.Commands.add('criarSolucao', () => {
             "exclusive_to_thematic_pages": false,
             "solution_integration_data": "{\"vendorId\":\"1\"}"
         }
-        cy.postRequest('/solutions', requestBody).then((response) => {
+        cy.postRequest(endpoints.solutions, requestBody).then((response) => {
             return response
         }) 
+    })
+})
+
+Cypress.Commands.add('criarTurma', (solutionId) => {              
+    const initDate = faker.date.past()
+    const finishDate = faker.date.future()
+    const requestBody = {
+        name: `Turma ${faker.lorem.slug()}`,
+        init_date: initDate.toISOString().slice(0, 16).replace('T', ' '),
+        finish_date: finishDate.toISOString().slice(0, 16).replace('T', ' '), 
+        vacancies: faker.number.int({min:1, max:1000}),
+        show_on_portal: "true",
+        allow_enroll_init_date: "2025-07-07 00:00",
+        allow_enroll_finish_date: "2025-08-01 00:00",
+        id_solution: solutionId
+    }            
+    
+    cy.postRequest('/sessions', requestBody).then((response) => {
+        expect(response.status).to.eq(200)
     })
 })

@@ -1,5 +1,40 @@
 const Joi = require('joi');
 
 export const getSolutionSchema = Joi.object({
-    
-})
+  id: Joi.number().required(),
+  solutionType: Joi.object().required(),
+  name: Joi.string().required(),
+  slug: Joi.string().required(),
+  duration: Joi.string().required(),
+  workload: Joi.string().required(),
+  callText: Joi.string().required(),
+  audience: Joi.string().required(),
+  content: Joi.array().items(Joi.string()).required(),
+  differentials: Joi.string().required(),
+  certificate: Joi.object().required(),
+  sessionType: Joi.string().required(),
+  enrollmentType: Joi.string().allow(null), 
+  sessionDueTime: Joi.number().required(),
+  sessionReEnrollmentAwaitTime: Joi.number().required(),
+  image: Joi.string().required(),
+  cardImage: Joi.string().required(),
+  showOnPortal: Joi.boolean().required(),
+  exclusiveToThematicPages: Joi.boolean().required(),
+  recommendationType: Joi.string().required(),
+  description: Joi.string().required(),
+  active: Joi.boolean().required(),
+  solutionTargetAudience: Joi.array().required(),
+  solutionAsset: Joi.array().required(),
+  solutionSurvey: Joi.array().required(),
+  solutionTheme: Joi.array().required(),
+  thematicPageSolution: Joi.array().required(),
+  learningPathSolution: Joi.array().required(),
+  seoTitle: Joi.string().required(),
+  seoDescription: Joi.string().required(),
+  seoKeywords: Joi.string().required(),
+  exclusiveToCompany: Joi.boolean().required(),
+  surveyRequiredForCertificate: Joi.boolean().required(),
+  tags: Joi.string().required(),
+  solutionRecommendations: Joi.array().required(),
+  solutionTypeIntegration: Joi.object().allow(null)
+});
